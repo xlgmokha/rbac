@@ -1,3 +1,5 @@
+require 'json'
+
 module Rack
   class RBAC
     def initialize(app, rbac_host, &block)
@@ -24,18 +26,18 @@ module Rack
     def authorized?(user, resource)
       response = Net::HTTP.get(@rbac_host, "/users/#{user}/authorizations?resource=#{resource}", @rbac_port)
       JSON.parse(response)["authorized"]
-    rescue
+    rescue => error
+      puts error.inspect
       false
     end
   end
 end
 
 use Rack::RBAC, "localhost" do |env|
-  puts env.inspect
   {
     user: CGI.escape(env["HTTP_X_USER"]),
     resource: CGI.escape(env['PATH_INFO'])
   }
 end
 
-run Proc.new { |env| [200, { "Content-Type" => "text/html" }, "Rack::RBAC gave you access\n"] }
+run Proc.new { |env| [200, { "Content-Type" => "text/html" }, ["Rack::RBAC gave you access\n"]] }
