@@ -21,7 +21,7 @@ class RoleBased < ActiveRecord::Base
   end
 
   def roles
-    str = read_attributes(:roles)
+    str = read_attribute(:roles)
     str.split(/ *, */)
   end
 end
@@ -29,10 +29,9 @@ end
 class User < RoleBased; end
 class Resource < RoleBased; end
 
-
 set :port, 3333
 
-post '/users/' do
+post '/users' do
   auth = User.find_and_update_or_create(params)
   auth ? 'Created' : 'Failed'
 end
@@ -47,6 +46,7 @@ get '/users/:name/authorizations' do |name|
   auth_roles = Resource.find_by_name(params[:resource]).roles rescue []
 
   authorized = (user_roles - auth_roles).length != user_roles.length
+  puts "#{name} authorized to access #{params[:resource]} #{authorized}"
 
   {
     authorized: authorized
