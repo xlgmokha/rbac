@@ -5,17 +5,18 @@ require "active_record"
 
 ActiveRecord::Base.establish_connection(
   adapter: 'sqlite3',
-  database: "#{File.dirname(__FILE__)}/../db/saint_peter_#{Sinatra::Application.environment}.sqlite.db"
+  database: "#{File.dirname(__FILE__)}/rbac_#{Sinatra::Application.environment}.sqlite.db"
 )
 
 class RoleBased < ActiveRecord::Base
   self.abstract_class = true
-  def self.find_and_update_or_create(attrs)
-    obj = find_by_name(attrs[:name])
-    if obj
-      obj.update_attributes(attrs)
+
+  def self.find_and_update_or_create(attributes)
+    item = find_by_name(attributes[:name])
+    if item
+      item.update_attributes(attributes)
     else
-      create(attrs)
+      create(attributes)
     end
   end
 
